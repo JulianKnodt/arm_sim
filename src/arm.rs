@@ -4,7 +4,6 @@ use std::convert::TryInto;
 pub struct CPU {
   registers: Registers,
   mem: Vec<u8>,
-
   // TODO mark endianness
 }
 
@@ -138,7 +137,6 @@ full_fp_registers!(
   23, V24, 24, V25, 25, V26, 26, V27, 27, V28, 28, V29, 29, V30, 30, V31, 31,
 );
 
-
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum LitOrReg {
   Lit(u64),
@@ -157,7 +155,7 @@ pub enum IndexingMode {
 pub enum MARKER {
   Literal(u64),
   GeneralRegister(RegisterIndex),
-  MemAccess(RegisterIndex, LitOrReg, IndexingMode)
+  MemAccess(RegisterIndex, LitOrReg, IndexingMode),
 }
 impl CPU {
   // Resolves either an immediate or a register value
@@ -193,9 +191,9 @@ impl CPU {
         },
         IndexingMode::PostIndexing => base as usize,
       };
-      let v = u64::from_le_bytes(self.mem[read_from..read_from+8].try_into().unwrap());
+      let v = u64::from_le_bytes(self.mem[read_from..read_from + 8].try_into().unwrap());
       if let IndexingMode::PostIndexing = idx_mode {
-          self.write_to_reg(reg, idx_native);
+        self.write_to_reg(reg, idx_native);
       }
       v
     } else {
@@ -204,15 +202,9 @@ impl CPU {
   }
   pub fn set_reg(&mut self, m: MARKER, v: u64) { todo!() }
   pub fn read_reg(&self, m: MARKER) -> u64 { todo!() }
-  pub fn store<const BYTES: usize>(&mut self, _m: MARKER, _addr: u64) {
-    todo!()
-  }
-  pub fn branch(&mut self, _addr: u64) {
-    todo!()
-  }
-  pub fn resolve_label(&self, label: MARKER) -> u64 {
-    todo!()
-  }
+  pub fn store<const BYTES: usize>(&mut self, _m: MARKER, _addr: u64) { todo!() }
+  pub fn branch(&mut self, _addr: u64) { todo!() }
+  pub fn resolve_label(&self, label: MARKER) -> u64 { todo!() }
 }
 
 macro_rules! define_alu_ops {
@@ -248,6 +240,5 @@ define_alu_ops!(
   STRH(2) = |[src, addr]| self.store::<2>(src, self.load(addr)),
   STRB(2) = |[src, addr]| self.store::<1>(src, self.load(addr)),
   */
-
   B(1) = |[dst]| self.branch(self.resolve_label(dst)),
 );
